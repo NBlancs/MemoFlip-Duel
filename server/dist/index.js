@@ -31,6 +31,12 @@ const start = async () => {
         context: buildContext,
         graphiql: env_1.env.NODE_ENV !== 'production',
     });
+    app.get('/', async () => ({
+        name: 'MemoFlip Duel API',
+        status: 'ok',
+        graphql: '/graphql',
+        health: '/health',
+    }));
     app.get('/health', async () => ({ status: 'ok' }));
     await app.listen({ port: env_1.env.PORT, host: '0.0.0.0' });
 };
