@@ -1,6 +1,7 @@
 import { memo, useEffect, useRef } from 'react';
 import { Animated, Image, ImageSourcePropType, Pressable, StyleSheet, Text } from 'react-native';
 
+import { audioService } from '../services/audioService';
 import { Card } from '../state/gameStore';
 import { colors, spacing, touchTarget, type } from '../theme';
 
@@ -58,7 +59,10 @@ export const AnimatedTile = memo(function AnimatedTile({ card, disabled, size, o
       accessibilityRole="button"
       accessibilityLabel={isRevealed ? `Card ${formatShapeName(card.value)}` : 'Hidden card'}
       disabled={disabled || isRevealed}
-      onPress={() => onPress(card.id)}
+      onPress={() => {
+        void audioService.playSound('flip_card');
+        onPress(card.id);
+      }}
       style={[styles.pressable, { width: size, height: size, minHeight: touchTarget, minWidth: touchTarget }]}
     >
       <Animated.View

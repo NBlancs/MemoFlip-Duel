@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { audioService } from '../services/audioService';
 import { colors, spacing, touchTarget, type } from '../theme';
 
 interface ToggleRowProps {
@@ -14,7 +15,10 @@ export const ToggleRow = memo(function ToggleRow({ label, value, onValueChange }
     <Pressable
       accessibilityRole="switch"
       accessibilityState={{ checked: value }}
-      onPress={() => onValueChange(!value)}
+      onPress={() => {
+        void audioService.playSound('button_clicked');
+        onValueChange(!value);
+      }}
       style={styles.row}
     >
       <Text style={styles.label}>{label}</Text>

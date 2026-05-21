@@ -10,38 +10,47 @@ export function useGameFeedbackEvents() {
   const flippedUnmatchedCount = useGameStore(
     (state) => state.cards.filter((card) => card.isFlipped && !card.isMatched).length,
   );
-  const previousMatched = useRef(matchedCount);
+  const matchedPairs = matchedCount / 2;
+  const previousMatchedPairs = useRef(matchedPairs);
+  const streakRef = useRef(0);
   const previousFlippedUnmatched = useRef(flippedUnmatchedCount);
   const previousGameState = useRef(gameState);
 
   useEffect(() => {
-    if (matchedCount > previousMatched.current) {
+    if (matchedPairs > previousMatchedPairs.current) {
+      streakRef.current += 1;
       void hapticsService.score();
-      void audioService.playSound('match');
+
+      if (streakRef.current >= 2) {
+        void audioService.playSound('good_result');
+      }
     }
 
-    previousMatched.current = matchedCount;
-  }, [matchedCount]);
+    previousMatchedPairs.current = matchedPairs;
+  }, [matchedPairs]);
 
   useEffect(() => {
     const wasMismatchReset =
       previousGameState.current !== 'PEEKING' &&
       previousFlippedUnmatched.current >= 2 &&
       flippedUnmatchedCount === 0 &&
-      matchedCount === previousMatched.current;
+      matchedPairs === previousMatchedPairs.current;
 
     if (wasMismatchReset) {
+      streakRef.current = 0;
       void hapticsService.collision();
-      void audioService.playSound('miss');
     }
 
     previousFlippedUnmatched.current = flippedUnmatchedCount;
-  }, [flippedUnmatchedCount, matchedCount]);
+  }, [flippedUnmatchedCount, matchedPairs]);
 
   useEffect(() => {
     if (gameState === 'GAME_OVER' && previousGameState.current !== 'GAME_OVER') {
       void hapticsService.finish();
-      void audioService.playSound('win');
+
+      if (!useGameStore.getState().cards.every((card) => card.isMatched)) {
+        void audioService.playSound('game_over');
+      }
     }
 
     previousGameState.current = gameState;

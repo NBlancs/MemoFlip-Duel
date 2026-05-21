@@ -2,7 +2,7 @@ export type Difficulty = 'easy' | 'medium';
 
 export interface GameSettings {
   soundEnabled: boolean;
-  musicEnabled: boolean;
+  musicVolume: number;
   hapticsEnabled: boolean;
   difficulty: Difficulty;
   tutorialSeen: boolean;
@@ -12,7 +12,7 @@ const key = 'memoflip-settings';
 
 const defaults: GameSettings = {
   soundEnabled: true,
-  musicEnabled: true,
+  musicVolume: 100,
   hapticsEnabled: true,
   difficulty: 'easy',
   tutorialSeen: false,
@@ -39,7 +39,17 @@ export const settingsService = {
     }
 
     try {
-      memorySettings = { ...defaults, ...JSON.parse(stored) };
+      const parsed = JSON.parse(stored) as Partial<GameSettings> & { musicEnabled?: boolean };
+      memorySettings = {
+        ...defaults,
+        ...parsed,
+        musicVolume:
+          typeof parsed.musicVolume === 'number'
+            ? parsed.musicVolume
+            : parsed.musicEnabled === false
+              ? 0
+              : defaults.musicVolume,
+      };
     } catch {
       memorySettings = defaults;
     }

@@ -4,10 +4,10 @@
     "slug": "memoflip",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/memoflip_logo.png",
     "userInterfaceStyle": "dark",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#0a0a0a"
     },
@@ -15,6 +15,12 @@
       "supportsTablet": true
     },
     "android": {
+      "edgeToEdgeEnabled": false,
+      "androidNavigationBar": {
+        "visible": "sticky-immersive",
+        "backgroundColor": "#0a0a0a",
+        "barStyle": "light-content"
+      },
       "adaptiveIcon": {
         "backgroundColor": "#0a0a0a",
         "foregroundImage": "./assets/adaptive-icon.png",

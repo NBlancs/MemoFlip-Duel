@@ -6,13 +6,20 @@ import { AppButton } from '../components/AppButton';
 import { Screen } from '../components/Screen';
 import { TerminalHeader } from '../components/TerminalHeader';
 import { ToggleRow } from '../components/ToggleRow';
+import { VolumeSlider } from '../components/VolumeSlider';
 import { Difficulty, GameSettings, settingsService } from '../services/settingsService';
+import { audioService } from '../services/audioService';
 import { colors, spacing, touchTarget, type } from '../theme';
 import { RootStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
 const difficultyOptions: Difficulty[] = ['easy', 'medium'];
+
+const difficultyLabelByValue: Record<Difficulty, string> = {
+  easy: 'Normal',
+  medium: 'Hard',
+};
 
 export function SettingsScreen({ navigation }: Props) {
   const [settings, setSettings] = useState<GameSettings | null>(null);
@@ -22,7 +29,9 @@ export function SettingsScreen({ navigation }: Props) {
   }, []);
 
   const update = async (partial: Partial<GameSettings>) => {
-    setSettings(await settingsService.updateSettings(partial));
+    const nextSettings = await settingsService.updateSettings(partial);
+    setSettings(nextSettings);
+    void audioService.applySettings();
   };
 
   return (
@@ -30,16 +39,18 @@ export function SettingsScreen({ navigation }: Props) {
       <TerminalHeader path="ROOT/CONFIG >" title="Settings" subtitle="Stored through the client settings adapter." />
       {settings ? (
         <View style={styles.panel}>
+          <Text style={styles.sectionTitle}>Audio</Text>
           <ToggleRow
-            label="Sound"
+            label="Sound Effects"
             value={settings.soundEnabled}
             onValueChange={(soundEnabled) => void update({ soundEnabled })}
           />
-          <ToggleRow
-            label="Music"
-            value={settings.musicEnabled}
-            onValueChange={(musicEnabled) => void update({ musicEnabled })}
+          <VolumeSlider
+            label="Background Music Volume"
+            value={settings.musicVolume}
+            onValueChange={(musicVolume) => void update({ musicVolume })}
           />
+          <Text style={styles.sectionTitle}>Gameplay</Text>
           <ToggleRow
             label="Haptics"
             value={settings.hapticsEnabled}
@@ -54,10 +65,15 @@ export function SettingsScreen({ navigation }: Props) {
                   key={difficulty}
                   accessibilityRole="button"
                   accessibilityState={{ selected }}
-                  onPress={() => void update({ difficulty })}
+                  onPress={() => {
+                    void audioService.playSound('button_clicked');
+                    void update({ difficulty });
+                  }}
                   style={[styles.segmentButton, selected && styles.segmentSelected]}
                 >
-                  <Text style={[styles.segmentLabel, selected && styles.segmentLabelSelected]}>{difficulty}</Text>
+                  <Text style={[styles.segmentLabel, selected && styles.segmentLabelSelected]}>
+                    {difficultyLabelByValue[difficulty]}
+                  </Text>
                 </Pressable>
               );
             })}
@@ -75,6 +91,15 @@ const styles = StyleSheet.create({
   panel: {
     flex: 1,
     gap: spacing.sm,
+  },
+  sectionTitle: {
+    color: colors.secondary,
+    fontFamily: type.fallback,
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginTop: spacing.xs,
   },
   segment: {
     flexDirection: 'row',

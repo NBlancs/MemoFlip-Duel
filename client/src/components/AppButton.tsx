@@ -33,7 +33,7 @@ export const AppButton = memo(function AppButton({
 
   const handlePress = () => {
     void hapticsService.selection();
-    void audioService.playSound('tap');
+    void audioService.playSound('button_clicked');
     onPress();
   };
 

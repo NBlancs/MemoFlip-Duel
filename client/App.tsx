@@ -31,9 +31,9 @@ export default function App() {
       try {
         const NavigationBar = await import('expo-navigation-bar');
         if (!mounted) return;
-        // Prefer immersive-sticky so gestures briefly show system bars
+        // Prefer overlay swipe behavior so the system bar stays out of the way.
         if (NavigationBar?.setBehaviorAsync) {
-          await NavigationBar.setBehaviorAsync('immersive-sticky');
+          await NavigationBar.setBehaviorAsync('overlay-swipe');
         }
         if (NavigationBar?.setVisibilityAsync) {
           await NavigationBar.setVisibilityAsync('hidden');

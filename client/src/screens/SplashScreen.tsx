@@ -22,12 +22,17 @@ export function SplashScreen({ navigation }: Props) {
     const load = async () => {
       try {
         await audioService.configure();
-        await assetService.preloadAll((nextProgress) => mounted && setProgress(nextProgress));
+        await Promise.all([
+          assetService.preloadAll((nextProgress) => mounted && setProgress(nextProgress)),
+          audioService.preloadAll(),
+        ]);
         const settings = await settingsService.loadSettings();
 
         if (!mounted) {
           return;
         }
+
+        await audioService.applySettings();
 
         navigation.replace(settings.tutorialSeen ? 'MainMenu' : 'Onboarding');
       } catch {
