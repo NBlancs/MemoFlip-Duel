@@ -34,6 +34,7 @@ export function GameScreen({ navigation }: Props) {
   const lives = Math.max(0, 8 - Math.max(0, moves - matchedPairs));
   const isWin = cards.length > 0 && cards.every((card) => card.isMatched);
   const isLoss = gameState === 'GAME_OVER' && !isWin;
+  const isComplete = gameState === 'GAME_OVER' && isWin;
   const inputLocked =
     paused || isAnimating || gameState === 'PEEKING' || gameState === 'PROCESSING_MATCH' || gameState === 'GAME_OVER';
   const recordedGameOverRef = useRef(false);
@@ -92,9 +93,6 @@ export function GameScreen({ navigation }: Props) {
       const result = buildMatchResult(cards, moves, elapsedTime);
       await persistenceService.recordResult(result);
 
-      if (isWin) {
-        navigation.replace('Results');
-      }
     };
 
     void recordGameOver();
@@ -109,6 +107,10 @@ export function GameScreen({ navigation }: Props) {
   const mainMenu = () => {
     setPaused(false);
     navigation.replace('MainMenu');
+  };
+
+  const viewResults = () => {
+    navigation.replace('Results');
   };
 
   return (
@@ -145,6 +147,18 @@ export function GameScreen({ navigation }: Props) {
       >
         <Text style={styles.modalText}>The game loop and audio are suspended until you resume.</Text>
         <AppButton label="Retry" onPress={retry} variant="secondary" />
+      </GameModal>
+      <GameModal
+        visible={isComplete}
+        title="Congratulations"
+        primaryLabel="View Results"
+        secondaryLabel="Main Menu"
+        onPrimary={viewResults}
+        onSecondary={mainMenu}
+      >
+        <Text style={styles.modalText}>
+          You matched every pair. Final score: {Math.max(0, matchedPairs * 1000 - moves * 25 - elapsedTime * 4)}.
+        </Text>
       </GameModal>
       <GameModal
         visible={isLoss}
