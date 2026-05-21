@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+}
+
+model Player {
+  id           String         @id @default(uuid())
+  email        String         @unique
+  passwordHash String
+  displayName  String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  matches      MatchSession[]
+}
+
+model MatchSession {
+  id             String     @id @default(uuid())
+  playerId       String
+  player         Player     @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  difficulty     Difficulty
+  moves          Int
+  elapsedSeconds Int
+  gridRows       Int
+  gridCols       Int
+  createdAt      DateTime   @default(now())
+
+  @@index([playerId, difficulty])
+  @@index([difficulty, elapsedSeconds])
+  @@index([difficulty, moves])
+}
