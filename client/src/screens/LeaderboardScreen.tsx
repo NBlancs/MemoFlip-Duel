@@ -43,7 +43,7 @@ export function LeaderboardScreen({ navigation }: Props) {
       <TerminalHeader
         path="ROOT/SCORES >"
         title="Leaderboards"
-        subtitle="Local runs plus mock entries shaped for backend replacement."
+        subtitle=""
       />
       <ScrollView contentContainerStyle={styles.list}>
         <Text style={styles.sectionLabel}>High Scores</Text>
@@ -79,13 +79,6 @@ export function LeaderboardScreen({ navigation }: Props) {
             <Text style={styles.emptyText}>No completed local runs yet.</Text>
           </View>
         )}
-
-        <View style={styles.schemaPanel}>
-          <Text style={styles.sectionLabel}>Data Shape</Text>
-          <Text style={styles.schemaText}>
-            id, username, score, moves, elapsedTime, matchedPairs, completedAt, source
-          </Text>
-        </View>
       </ScrollView>
       <AppButton label="Back" onPress={() => navigation.goBack()} variant="ghost" />
     </Screen>
