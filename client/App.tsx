@@ -2,7 +2,7 @@ import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { Platform, AppState } from 'react-native';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { colors } from './src/theme';
@@ -21,47 +21,64 @@ const navigationTheme = {
 
 export default function App() {
   const appState = useRef(AppState.currentState);
+  const mounted = useRef(true);
+  const immersiveTimers = useRef<Array<ReturnType<typeof setTimeout>>>([]);
+
+  const applyImmersive = useCallback(async () => {
+    if (Platform.OS !== 'android') {
+      return;
+    }
+
+    try {
+      const NavigationBar = await import('expo-navigation-bar');
+
+      if (!mounted.current) {
+        return;
+      }
+
+      await NavigationBar.setBehaviorAsync('overlay-swipe');
+      await NavigationBar.setBackgroundColorAsync(colors.background);
+      await NavigationBar.setButtonStyleAsync('light');
+      await NavigationBar.setVisibilityAsync('hidden');
+    } catch {
+      // Expo Go and Android navigation settings can block this on some devices.
+    }
+  }, []);
+
+  const scheduleImmersive = useCallback(() => {
+    if (Platform.OS !== 'android') {
+      return;
+    }
+
+    void applyImmersive();
+
+    const timer = setTimeout(() => {
+      void applyImmersive();
+    }, 350);
+
+    immersiveTimers.current.push(timer);
+  }, [applyImmersive]);
 
   useEffect(() => {
     if (Platform.OS !== 'android') return;
 
-    let mounted = true;
-
-    const applyImmersive = async () => {
-      try {
-        const NavigationBar = await import('expo-navigation-bar');
-        if (!mounted) return;
-        // Prefer overlay swipe behavior so the system bar stays out of the way.
-        if (NavigationBar?.setBehaviorAsync) {
-          await NavigationBar.setBehaviorAsync('overlay-swipe');
-        }
-        if (NavigationBar?.setVisibilityAsync) {
-          await NavigationBar.setVisibilityAsync('hidden');
-        }
-      } catch (e) {
-        // module not installed — inform developer in console
-        // To install: `npx expo install expo-navigation-bar`
-        // This is non-fatal; app continues to run.
-        // eslint-disable-next-line no-console
-        console.warn('expo-navigation-bar not available. Run: npx expo install expo-navigation-bar');
-      }
-    };
-
-    applyImmersive();
+    mounted.current = true;
+    scheduleImmersive();
 
     const sub = AppState.addEventListener('change', nextState => {
-      // re-apply when app becomes active
       if (appState.current.match(/inactive|background/) && nextState === 'active') {
-        applyImmersive();
+        scheduleImmersive();
       }
       appState.current = nextState;
     });
 
     return () => {
-      mounted = false;
+      mounted.current = false;
+      immersiveTimers.current.forEach(clearTimeout);
+      immersiveTimers.current = [];
       sub.remove();
     };
-  }, []);
+  }, [scheduleImmersive]);
 
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
