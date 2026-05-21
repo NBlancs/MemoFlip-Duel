@@ -32,7 +32,7 @@ export function ResultsScreen({ navigation }: Props) {
 
   return (
     <Screen>
-      <TerminalHeader path="ROOT/RUN/RESULT >" title="Run Complete" subtitle="Final telemetry persisted locally." />
+      <TerminalHeader path="ROOT/RUN/RESULT >" title="Run Complete" subtitle="" />
       <View style={styles.panel}>
         <ScoreDisplay label="Final Score" value={result.score} accent="primary" />
         <ScoreDisplay label="Moves" value={moves} accent="secondary" />
