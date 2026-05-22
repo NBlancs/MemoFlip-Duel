@@ -1,3 +1,5 @@
+import { storageService } from './storage';
+
 export type Difficulty = 'easy' | 'medium';
 
 export interface GameSettings {
@@ -18,21 +20,11 @@ const defaults: GameSettings = {
   tutorialSeen: false,
 };
 
-type BasicStorage = {
-  getItem: (name: string) => string | null;
-  setItem: (name: string, value: string) => void;
-};
-
 let memorySettings = defaults;
-
-const getStorage = (): BasicStorage | undefined => {
-  const maybeStorage = globalThis as typeof globalThis & { localStorage?: BasicStorage };
-  return maybeStorage.localStorage;
-};
 
 export const settingsService = {
   async loadSettings(): Promise<GameSettings> {
-    const stored = getStorage()?.getItem(key);
+    const stored = await storageService.getItem(key);
 
     if (!stored) {
       return memorySettings;
@@ -59,7 +51,7 @@ export const settingsService = {
 
   async saveSettings(nextSettings: GameSettings): Promise<GameSettings> {
     memorySettings = nextSettings;
-    getStorage()?.setItem(key, JSON.stringify(nextSettings));
+    await storageService.setItem(key, JSON.stringify(nextSettings));
     return memorySettings;
   },
 

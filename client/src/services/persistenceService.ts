@@ -1,5 +1,6 @@
 import { Card } from '../state/gameStore';
 import { playerService } from './playerService';
+import { storageService } from './storage';
 
 export interface MatchResult {
   id: string;
@@ -14,18 +15,8 @@ export interface MatchResult {
 const bestResultKey = 'memoflip-best-result';
 const localResultsKey = 'memoflip-local-results';
 
-type BasicStorage = {
-  getItem: (name: string) => string | null;
-  setItem: (name: string, value: string) => void;
-};
-
 let memoryBest: MatchResult | null = null;
 let memoryResults: MatchResult[] = [];
-
-const getStorage = (): BasicStorage | undefined => {
-  const maybeStorage = globalThis as typeof globalThis & { localStorage?: BasicStorage };
-  return maybeStorage.localStorage;
-};
 
 const isBetterResult = (candidate: MatchResult, current: MatchResult | null) => {
   if (!current) {
@@ -82,7 +73,7 @@ export const buildMatchResult = (cards: Card[], moves: number, elapsedTime: numb
 
 export const persistenceService = {
   async getBestResult(): Promise<MatchResult | null> {
-    const stored = getStorage()?.getItem(bestResultKey);
+    const stored = await storageService.getItem(bestResultKey);
 
     if (!stored) {
       return memoryBest;
@@ -99,7 +90,7 @@ export const persistenceService = {
   },
 
   async getLocalResults(): Promise<MatchResult[]> {
-    const stored = getStorage()?.getItem(localResultsKey);
+    const stored = await storageService.getItem(localResultsKey);
 
     if (!stored) {
       return memoryResults;
@@ -123,13 +114,13 @@ export const persistenceService = {
     const resultWithPlayer = { ...result, username: profile?.username ?? result.username };
     const results = await this.getLocalResults();
     memoryResults = [resultWithPlayer, ...results].slice(0, 20);
-    getStorage()?.setItem(localResultsKey, JSON.stringify(memoryResults));
+    await storageService.setItem(localResultsKey, JSON.stringify(memoryResults));
 
     const current = await this.getBestResult();
 
     if (isBetterResult(resultWithPlayer, current)) {
       memoryBest = resultWithPlayer;
-      getStorage()?.setItem(bestResultKey, JSON.stringify(resultWithPlayer));
+      await storageService.setItem(bestResultKey, JSON.stringify(resultWithPlayer));
       return resultWithPlayer;
     }
 
