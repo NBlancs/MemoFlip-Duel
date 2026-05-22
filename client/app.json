@@ -16,11 +16,6 @@
     },
     "android": {
       "edgeToEdgeEnabled": false,
-      "androidNavigationBar": {
-        "visible": "sticky-immersive",
-        "backgroundColor": "#0a0a0a",
-        "barStyle": "light-content"
-      },
       "adaptiveIcon": {
         "backgroundColor": "#0a0a0a",
         "foregroundImage": "./assets/adaptive-icon.png",
