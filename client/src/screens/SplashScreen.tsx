@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     maxWidth: '90%',
   },
   errorText: {
-    color: colors.error,
+    color: colors.danger,
     fontFamily: type.fallback,
     fontSize: 14,
     textAlign: 'center',

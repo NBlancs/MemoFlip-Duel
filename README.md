@@ -66,14 +66,14 @@ The seed script creates a demo player and sample match sessions so the leaderboa
 
 ### 3. Configure the client
 
-The client reads runtime configuration from Expo environment variables. Set the API URL in `client/.env` or your shell before starting Expo:
+The client reads runtime configuration from Expo environment variables, which default to the deployed Railway backend:
 
 ```bash
-EXPO_PUBLIC_API_URL=http://localhost:4000/graphql
-EXPO_PUBLIC_GRAPHQL_HTTP_URL=http://localhost:4000/graphql
+EXPO_PUBLIC_API_URL=https://memoflip-production.up.railway.app
+EXPO_PUBLIC_GRAPHQL_HTTP_URL=https://memoflip-production.up.railway.app/graphql
 ```
 
-If you run on a physical device, use your machine's LAN address instead of `localhost`.
+The application is equipped with an automatic configuration service (`apiConfig.ts`) that pings the Railway backend first and automatically falls back to the local development server (or custom configuration) if the deployed service is unreachable.
 
 ### 4. Start both apps
 

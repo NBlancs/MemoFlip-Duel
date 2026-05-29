@@ -6,7 +6,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_GRAPHQL_HTTP_URL": "http://192.168.1.57:4000/graphql"
+        "EXPO_PUBLIC_GRAPHQL_HTTP_URL": "https://memoflip-production.up.railway.app/graphql"
       }
     },
     "preview": {

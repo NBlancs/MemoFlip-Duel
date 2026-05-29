@@ -108,14 +108,14 @@ function Particle({ config }: { config: ParticleConfig }) {
       style={[
         styles.particle,
         {
-          left: config.left,
-          top: config.top,
+          left: config.left as any,
+          top: config.top as any,
           width: config.size,
           height: config.size,
           borderRadius: config.size / 2,
           backgroundColor: config.color,
           opacity,
-          transform: [{ translateX }, { translateY }],
+          transform: [{ translateX }, { translateY }] as any,
         },
       ]}
     />
